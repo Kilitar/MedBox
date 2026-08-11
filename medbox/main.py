@@ -1,12 +1,11 @@
 import sys
 import os
 
-# Zajistí správné načtení balíčku medbox bez ohledu na to, odkud je skript spuštěn
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
-from PyQt6.QtGui import QIcon, QPixmap, QColor, QPainter, QBrush
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QStyle
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QObject, pyqtSignal, QTimer
 
 from medbox.models import Medication
 from medbox.alert import MedAlertDialog
@@ -21,30 +20,18 @@ class MedBoxApp(QObject):
         self.app = app
         self.config_window = None
         self.dashboard_window = None
+        self.active_dialogs = []
 
         self._setup_tray()
         self.show_alert_signal.connect(self._show_alert_dialog)
         self._start_daemon()
         
-        # Zkontroluj zmeškané dávky v samostatném časovači krátce po vykreslení rozhraní
-        from PyQt6.QtCore import QTimer
-        QTimer.singleShot(1000, self.daemon.check_missed_on_startup)
-
-    def _create_tray_icon(self) -> QIcon:
-        pixmap = QPixmap(32, 32)
-        pixmap.fill(QColor(0, 0, 0, 0))
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setBrush(QBrush(QColor("#4e54c8")))
-        painter.drawEllipse(2, 2, 28, 28)
-        painter.setBrush(QBrush(QColor("#ffffff")))
-        from PyQt6.QtCore import Qt
-        painter.drawText(pixmap.rect(), int(Qt.AlignmentFlag.AlignCenter), "M")
-        painter.end()
-        return QIcon(pixmap)
+        QTimer.singleShot(2000, self.daemon.check_missed_on_startup)
 
     def _setup_tray(self):
-        self.tray_icon = QSystemTrayIcon(self._create_tray_icon(), self.app)
+        # Use a standard system icon to ensure it renders correctly on Windows
+        icon = self.app.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxInformation)
+        self.tray_icon = QSystemTrayIcon(icon, self.app)
         self.tray_icon.setToolTip("MedBox – Připomínač léků")
 
         menu = QMenu()
@@ -75,12 +62,17 @@ class MedBoxApp(QObject):
 
     def _show_alert_dialog(self, medication: Medication, scheduled_dt, overdue_delta):
         dialog = MedAlertDialog(medication, scheduled_dt, overdue_delta)
-        dialog.exec()
+        self.active_dialogs.append(dialog)
+        dialog.finished.connect(lambda: self.active_dialogs.remove(dialog) if dialog in self.active_dialogs else None)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
 
     def _open_config(self):
         if not self.config_window:
             self.config_window = ConfigWindow()
         self.config_window.show()
+        self.config_window.raise_()
         self.config_window.activateWindow()
 
     def _open_dashboard(self):
@@ -88,6 +80,7 @@ class MedBoxApp(QObject):
             self.dashboard_window = DashboardWindow()
         self.dashboard_window.refresh_dashboard()
         self.dashboard_window.show()
+        self.dashboard_window.raise_()
         self.dashboard_window.activateWindow()
 
     def _quit(self):
