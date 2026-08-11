@@ -28,13 +28,29 @@ class MedDaemon(threading.Thread):
     
     def _get_next_scheduled(self, med: Medication) -> datetime:
         """
-        Vypočítá datetime příští dávky pro daný lék.
+        Vypočítá datetime příští dávky pro daný lék s ohledem na anchor_time (vrací se k původnímu času).
         """
         last_log = get_last_log_for_med(med.id)
         if last_log:
             try:
                 taken_dt = datetime.fromisoformat(last_log.taken_dt)
-                return taken_dt + timedelta(hours=med.interval_hours)
+                
+                # Pokud má lék zadaný kotevní čas (anchor_time), vracíme se k tomuto času
+                if med.anchor_time and ":" in med.anchor_time:
+                    hours, minutes = map(int, med.anchor_time.split(":"))
+                    
+                    # Cílové ukotvení pro následující den po vzití
+                    target_date = (taken_dt + timedelta(days=1)).date()
+                    candidate = datetime.combine(target_date, datetime.min.time()).replace(hour=hours, minute=minutes)
+                    
+                    # Minimální pauza mezi dávkami (např. polovina intervalu nebo min 4h)
+                    min_gap_hours = max(4, med.interval_hours // 2)
+                    if (candidate - taken_dt).total_seconds() < min_gap_hours * 3600:
+                        candidate += timedelta(days=1)
+                        
+                    return candidate
+                else:
+                    return taken_dt + timedelta(hours=med.interval_hours)
             except ValueError:
                 pass
         
@@ -42,12 +58,9 @@ class MedDaemon(threading.Thread):
         hours, minutes = map(int, med.anchor_time.split(":"))
         anchor = now.replace(hour=hours, minute=minutes, second=0, microsecond=0)
         
-        # Pokud anchor už proběhl před více než 24h nebo v minulosti dnes bez předchozího logu
         if anchor > now:
-            # Anchor je dnes v budoucnu
             return anchor
         else:
-            # Anchor je v minulosti dnes – pokud je zpoždění do 24h, považujeme ho za dávku ke splnění
             return anchor
 
     def _check_medications(self, startup: bool = False):

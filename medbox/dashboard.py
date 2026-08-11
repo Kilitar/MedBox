@@ -9,7 +9,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from medbox.storage import load_medications, load_log
+from medbox.storage import load_medications, load_log, append_log
 from medbox.models import Medication, DoseLog
 
 class DashboardWindow(QMainWindow):
@@ -132,6 +132,16 @@ class DashboardWindow(QMainWindow):
             "streak": streak
         }
 
+    def _take_now(self, med: Medication):
+        now = datetime.now()
+        log_entry = DoseLog(
+            medication_id=med.id,
+            taken_dt=now.isoformat(),
+            delay_minutes=0
+        )
+        append_log(log_entry)
+        self.refresh_dashboard()
+
     def _create_card(self, med: Medication, stat: Dict):
         card = QFrame()
         card.setStyleSheet("QFrame { background-color: #313244; border-radius: 6px; padding: 8px; margin-bottom: 8px; }")
@@ -142,6 +152,12 @@ class DashboardWindow(QMainWindow):
         title = QLabel(f"<b>{status_icon} {med.name}</b> [{med.regularity.upper()}]")
         title_layout.addWidget(title)
         title_layout.addStretch()
+
+        if med.active:
+            take_btn = QPushButton("💊 Vzít teď")
+            take_btn.setStyleSheet("background-color: #a6e3a1; color: #11111b; font-weight: bold;")
+            take_btn.clicked.connect(lambda _, m=med: self._take_now(m))
+            title_layout.addWidget(take_btn)
 
         if self.open_config_callback:
             edit_btn = QPushButton("✏️ Upravit")

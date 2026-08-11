@@ -1,0 +1,18 @@
+
+=== 2026-08-11T04:53:33.913898 ===
+Traceback (most recent call last):
+  File "D:\Antigravity Projects\MedBox\run.pyw", line 29, in <module>
+    medbox = MedBoxApp(app)
+  File "D:\Antigravity Projects\MedBox\medbox\main.py", line 44, in __init__
+    self._open_dashboard()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Antigravity Projects\MedBox\medbox\main.py", line 121, in _open_dashboard
+    self.dashboard_window = DashboardWindow(open_config_callback=self._open_config)
+                            ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Antigravity Projects\MedBox\medbox\dashboard.py", line 31, in __init__
+    self._init_ui()
+    ~~~~~~~~~~~~~^^
+  File "D:\Antigravity Projects\MedBox\medbox\dashboard.py", line 51, in _init_ui
+    self.edit_btn = QPushButton("⚙️ Správa a Editace Léků (Přidat/Změnit)")
+                    ^^^^^^^^^^^
+NameError: name 'QPushButton' is not defined
