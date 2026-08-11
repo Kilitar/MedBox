@@ -38,7 +38,8 @@ class MedBoxApp(QObject):
         painter.setBrush(QBrush(QColor("#4e54c8")))
         painter.drawEllipse(2, 2, 28, 28)
         painter.setBrush(QBrush(QColor("#ffffff")))
-        painter.drawText(pixmap.rect(), 0x0084, "M") # AlignCenter
+        from PyQt6.QtCore import Qt
+        painter.drawText(pixmap.rect(), int(Qt.AlignmentFlag.AlignCenter), "M")
         painter.end()
         return QIcon(pixmap)
 

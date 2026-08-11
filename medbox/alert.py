@@ -33,7 +33,7 @@ class MedAlertDialog(QDialog):
         self.overdue_delta = overdue_delta
         self.seconds_remaining = 10
 
-        self.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.CustomizeWindowHint)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
         self.setMinimumSize(480, 360)
         self.setStyleSheet("""
             QDialog {
