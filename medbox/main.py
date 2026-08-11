@@ -1,4 +1,9 @@
 import sys
+import os
+
+# Zajistí správné načtení balíčku medbox bez ohledu na to, odkud je skript spuštěn
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon, QPixmap, QColor, QPainter, QBrush
 from PyQt6.QtCore import QObject, pyqtSignal
