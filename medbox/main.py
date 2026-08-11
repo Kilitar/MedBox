@@ -26,8 +26,9 @@ class MedBoxApp(QObject):
         self.show_alert_signal.connect(self._show_alert_dialog)
         self._start_daemon()
         
-        # Zkontroluj zmeškané dávky z minulosti při startu
-        self.daemon.check_missed_on_startup()
+        # Zkontroluj zmeškané dávky v samostatném časovači krátce po vykreslení rozhraní
+        from PyQt6.QtCore import QTimer
+        QTimer.singleShot(1000, self.daemon.check_missed_on_startup)
 
     def _create_tray_icon(self) -> QIcon:
         pixmap = QPixmap(32, 32)
