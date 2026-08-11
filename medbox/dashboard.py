@@ -37,7 +37,7 @@ class DashboardWindow(QMainWindow):
         top_layout.addWidget(QLabel("<b>Rozsah sledování:</b>"))
         
         self.filter_combo = QComboBox()
-        self.filter_combo.addItems(["7 dní", "30 dní", "90 dní"])
+        self.filter_combo.addItems(["7 dní", "30 dní", "90 dní", "Od začátku"])
         self.filter_combo.setCurrentIndex(1)
         self.filter_combo.currentIndexChanged.connect(self._on_filter_change)
         top_layout.addWidget(self.filter_combo)
@@ -65,7 +65,7 @@ class DashboardWindow(QMainWindow):
         self.setCentralWidget(main_widget)
 
     def _on_filter_change(self, index):
-        days_map = [7, 30, 90]
+        days_map = [7, 30, 90, 99999]
         self.days_filter = days_map[index]
         self.refresh_dashboard()
 
@@ -154,14 +154,26 @@ class DashboardWindow(QMainWindow):
             return
 
         med_names = [med.name for med, _ in stats_list]
+        logs = load_log()
+        now = datetime.now().date()
         days = self.days_filter
+        
+        # Pro zobrazení 'Od začátku' dynamicky zjistíme nejstarší záznam a heatmapu mírně omezíme,
+        # aby se matplotlib z obrovské prázdné plochy nezbláznil
+        if days > 1000:
+            if logs:
+                oldest_date = min([datetime.fromisoformat(l.taken_dt).date() for l in logs])
+                calculated_days = (now - oldest_date).days + 1
+                days = max(7, calculated_days)
+            else:
+                days = 30
+        
+        # Omezení šířky matplotlib gridu, víc než 1000 dnů stejně není k přečtení
+        days = min(days, 1000)
         
         # Matrix setup
         import numpy as np
         grid = np.zeros((len(med_names), days))
-
-        logs = load_log()
-        now = datetime.now().date()
 
         for row_idx, (med, _) in enumerate(stats_list):
             med_logs = [l for l in logs if l.medication_id == med.id]
