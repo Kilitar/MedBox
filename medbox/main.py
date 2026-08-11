@@ -103,16 +103,22 @@ class MedBoxApp(QObject):
             import traceback
             dbg_log(f"CRASH in _show_alert_dialog: {e}\n{traceback.format_exc()}")
 
-    def _open_config(self):
+    def _on_config_saved(self):
+        if self.dashboard_window:
+            self.dashboard_window.refresh_dashboard()
+
+    def _open_config(self, med_id: str = None):
         if not self.config_window:
-            self.config_window = ConfigWindow()
+            self.config_window = ConfigWindow(on_save_callback=self._on_config_saved)
+        if med_id:
+            self.config_window.select_medication_by_id(med_id)
         self.config_window.show()
         self.config_window.raise_()
         self.config_window.activateWindow()
 
     def _open_dashboard(self):
         if not self.dashboard_window:
-            self.dashboard_window = DashboardWindow()
+            self.dashboard_window = DashboardWindow(open_config_callback=self._open_config)
         self.dashboard_window.refresh_dashboard()
         self.dashboard_window.show()
         self.dashboard_window.raise_()

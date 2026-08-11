@@ -13,15 +13,18 @@ from medbox.storage import load_medications, load_log
 from medbox.models import Medication, DoseLog
 
 class DashboardWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, open_config_callback=None):
         super().__init__(parent)
         self.setWindowTitle("MedBox – Pravidelnost a Statistiky")
         self.resize(900, 600)
+        self.open_config_callback = open_config_callback
         self.setStyleSheet("""
             QMainWindow { background-color: #1e1e2e; color: #ffffff; }
             QWidget { color: #ffffff; }
             QComboBox { background-color: #313244; border: 1px solid #45475a; color: white; padding: 4px; }
             QScrollArea { border: none; background-color: #181825; }
+            QPushButton { background-color: #45475a; color: white; border: none; padding: 4px 8px; border-radius: 4px; }
+            QPushButton:hover { background-color: #585b70; }
         """)
 
         self.days_filter = 30
@@ -41,7 +44,14 @@ class DashboardWindow(QMainWindow):
         self.filter_combo.setCurrentIndex(1)
         self.filter_combo.currentIndexChanged.connect(self._on_filter_change)
         top_layout.addWidget(self.filter_combo)
+        
         top_layout.addStretch()
+
+        if self.open_config_callback:
+            self.edit_btn = QPushButton("⚙️ Správa a Editace Léků (Přidat/Změnit)")
+            self.edit_btn.setStyleSheet("background-color: #89b4fa; color: #11111b; font-weight: bold; padding: 6px 12px;")
+            self.edit_btn.clicked.connect(lambda: self.open_config_callback(None))
+            top_layout.addWidget(self.edit_btn)
 
         main_layout.addLayout(top_layout)
 
@@ -127,10 +137,21 @@ class DashboardWindow(QMainWindow):
         card.setStyleSheet("QFrame { background-color: #313244; border-radius: 6px; padding: 8px; margin-bottom: 8px; }")
         layout = QVBoxLayout(card)
 
-        title = QLabel(f"<b>{med.name}</b> [{med.regularity.upper()}]")
-        layout.addWidget(title)
+        title_layout = QHBoxLayout()
+        status_icon = "🟢" if med.active else "⚫"
+        title = QLabel(f"<b>{status_icon} {med.name}</b> [{med.regularity.upper()}]")
+        title_layout.addWidget(title)
+        title_layout.addStretch()
 
-        info_text = f"Adherence: {stat['adherence_pct']}% | Streak: {stat['streak']} dávka/dávek<br>" \
+        if self.open_config_callback:
+            edit_btn = QPushButton("✏️ Upravit")
+            edit_btn.clicked.connect(lambda _, m_id=med.id: self.open_config_callback(m_id))
+            title_layout.addWidget(edit_btn)
+
+        layout.addLayout(title_layout)
+
+        info_text = f"Dávkování: {med.dosage} | Anchor: {med.anchor_time} | Interval: {med.interval_hours}h<br>" \
+                    f"Adherence: {stat['adherence_pct']}% | Streak: {stat['streak']} dávka/dávek<br>" \
                     f"Prům. zpoždění: {stat['avg_delay_min']} min"
         layout.addWidget(QLabel(info_text))
 

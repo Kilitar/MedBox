@@ -8,10 +8,11 @@ from medbox.models import Medication
 from medbox.storage import load_medications, save_medications
 
 class ConfigWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, on_save_callback=None):
         super().__init__(parent)
-        self.setWindowTitle("MedBox – Správa léků")
-        self.resize(700, 450)
+        self.setWindowTitle("MedBox – Správa a Editace Léků")
+        self.resize(700, 480)
+        self.on_save_callback = on_save_callback
         self.medications = load_medications()
         self.selected_index = -1
         
@@ -28,6 +29,14 @@ class ConfigWindow(QMainWindow):
 
         self._init_ui()
         self._populate_list()
+
+    def select_medication_by_id(self, med_id: str):
+        self.medications = load_medications()
+        self._populate_list()
+        for idx, med in enumerate(self.medications):
+            if med.id == med_id:
+                self.list_widget.setCurrentRow(idx)
+                break
 
     def _init_ui(self):
         main_widget = QWidget()
@@ -140,10 +149,15 @@ class ConfigWindow(QMainWindow):
             if reply == QMessageBox.StandardButton.Yes:
                 self.medications.pop(self.selected_index)
                 self.selected_index = -1
+                save_medications(self.medications)
                 self._populate_list()
+                if self.on_save_callback:
+                    self.on_save_callback()
 
     def _save_all(self):
         self._update_current_from_form()
         save_medications(self.medications)
         self._populate_list()
+        if self.on_save_callback:
+            self.on_save_callback()
         QMessageBox.information(self, "Uloženo", "Konfigurace léků byla úspěšně uložena.")

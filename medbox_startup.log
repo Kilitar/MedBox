@@ -18,3 +18,8 @@ _show_alert_dialog called for Rosumop
 _show_alert_dialog finished successfully
 _show_alert_dialog called for Reflex Magnesium Bisglycinát
 _show_alert_dialog finished successfully
+MedBoxApp.__init__ started
+Calling _setup_tray
+Connecting signals
+Calling _start_daemon
+MedBoxApp.__init__ finished
