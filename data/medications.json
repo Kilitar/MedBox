@@ -1,0 +1,42 @@
+[
+  {
+    "id": "med-001",
+    "name": "Siofor 1000",
+    "dosage": "1 tbl",
+    "regularity": "normal",
+    "anchor_time": "10:00",
+    "interval_hours": 24,
+    "note": "po jídle",
+    "active": true
+  },
+  {
+    "id": "med-002",
+    "name": "Rosumop",
+    "dosage": "1 tbl",
+    "regularity": "normal",
+    "anchor_time": "00:00",
+    "interval_hours": 24,
+    "note": "před spaním",
+    "active": true
+  },
+  {
+    "id": "med-003",
+    "name": "Viridian High Five Multivitamin",
+    "dosage": "1 tbl",
+    "regularity": "optional",
+    "anchor_time": "10:00",
+    "interval_hours": 24,
+    "note": "po jídle, nemíchat s hořčíkem - kontraindikace",
+    "active": true
+  },
+  {
+    "id": "med-004",
+    "name": "Reflex Magnesium Bisglycinát",
+    "dosage": "1 tbl",
+    "regularity": "optional",
+    "anchor_time": "00:00",
+    "interval_hours": 24,
+    "note": "nemíchat s multivitamínem",
+    "active": true
+  }
+]
