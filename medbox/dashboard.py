@@ -16,7 +16,7 @@ class DashboardWindow(QMainWindow):
     def __init__(self, parent=None, open_config_callback=None):
         super().__init__(parent)
         self.setWindowTitle("MedBox – Pravidelnost a Statistiky")
-        self.resize(900, 600)
+        self.resize(1150, 650)
         self.open_config_callback = open_config_callback
         self.setStyleSheet("""
             QMainWindow { background-color: #1e1e2e; color: #ffffff; }
@@ -60,16 +60,18 @@ class DashboardWindow(QMainWindow):
 
         # Left Cards
         self.cards_area = QScrollArea()
+        self.cards_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.cards_area.setMinimumWidth(540)
         self.cards_container = QWidget()
         self.cards_layout = QVBoxLayout(self.cards_container)
         self.cards_area.setWidget(self.cards_container)
         self.cards_area.setWidgetResizable(True)
-        content_layout.addWidget(self.cards_area, 1)
+        content_layout.addWidget(self.cards_area, 5)
 
         # Right Heatmap
         self.figure = Figure(figsize=(6, 4), facecolor='#1a1a2e')
         self.canvas = FigureCanvas(self.figure)
-        content_layout.addWidget(self.canvas, 2)
+        content_layout.addWidget(self.canvas, 4)
 
         main_layout.addLayout(content_layout)
         self.setCentralWidget(main_widget)
