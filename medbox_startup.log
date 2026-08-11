@@ -1,0 +1,20 @@
+run.pyw started
+Creating QApplication
+Creating MedBoxApp
+MedBoxApp.__init__ started
+Calling _setup_tray
+Connecting signals
+Calling _start_daemon
+Setting timer for check_missed_on_startup
+MedBoxApp.__init__ finished
+Calling app.exec()
+MedBoxApp.__init__ started
+Calling _setup_tray
+Connecting signals
+Calling _start_daemon
+Setting timer for check_missed_on_startup
+MedBoxApp.__init__ finished
+_show_alert_dialog called for Rosumop
+_show_alert_dialog finished successfully
+_show_alert_dialog called for Reflex Magnesium Bisglycinát
+_show_alert_dialog finished successfully

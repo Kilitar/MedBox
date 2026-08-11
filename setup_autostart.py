@@ -7,7 +7,7 @@ def setup_autostart():
     pythonw = sys.executable.replace("python.exe", "pythonw.exe")
     run_pyw = os.path.abspath(os.path.join(os.path.dirname(__file__), "run.pyw"))
     
-    command = f'"{pythonw}" "{run_pyw}"'
+    command = f'"{pythonw}" "{run_pyw}" --silent'
     
     key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
     try:

@@ -1,6 +1,11 @@
 import sys
 import os
 
+def dbg_log(msg):
+    with open(r"d:\Antigravity Projects\MedBox\medbox_startup.log", "a", encoding="utf-8") as f:
+        f.write(msg + "\n")
+    print(msg)
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QStyle
@@ -17,21 +22,44 @@ class MedBoxApp(QObject):
     
     def __init__(self, app: QApplication):
         super().__init__()
+        dbg_log("MedBoxApp.__init__ started")
         self.app = app
         self.config_window = None
         self.dashboard_window = None
         self.active_dialogs = []
 
+        dbg_log("Calling _setup_tray")
         self._setup_tray()
+        
+        dbg_log("Connecting signals")
         self.show_alert_signal.connect(self._show_alert_dialog)
+        
+        dbg_log("Calling _start_daemon")
         self._start_daemon()
         
         QTimer.singleShot(2000, self.daemon.check_missed_on_startup)
+        
+        # Otevři dashboard hned při startu, pokud není potlačen
+        if "--silent" not in sys.argv:
+            self._open_dashboard()
+        dbg_log("MedBoxApp.__init__ finished")
+
+    def _create_tray_icon(self) -> QIcon:
+        from PyQt6.QtGui import QPixmap, QColor, QPainter, QBrush
+        from PyQt6.QtCore import Qt
+        pixmap = QPixmap(32, 32)
+        pixmap.fill(QColor(0, 0, 0, 0))
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setBrush(QBrush(QColor("#4e54c8")))
+        painter.drawEllipse(2, 2, 28, 28)
+        painter.setBrush(QBrush(QColor("#ffffff")))
+        painter.drawText(pixmap.rect(), int(Qt.AlignmentFlag.AlignCenter), "M")
+        painter.end()
+        return QIcon(pixmap)
 
     def _setup_tray(self):
-        # Use a standard system icon to ensure it renders correctly on Windows
-        icon = self.app.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxInformation)
-        self.tray_icon = QSystemTrayIcon(icon, self.app)
+        self.tray_icon = QSystemTrayIcon(self._create_tray_icon(), self.app)
         self.tray_icon.setToolTip("MedBox – Připomínač léků")
 
         menu = QMenu()
@@ -52,6 +80,7 @@ class MedBoxApp(QObject):
 
         self.tray_icon.setContextMenu(menu)
         self.tray_icon.show()
+        self.tray_icon.showMessage("MedBox Spuštěn", "Aplikace na hlídání léků běží na pozadí.", QSystemTrayIcon.MessageIcon.Information, 5000)
 
     def _start_daemon(self):
         from medbox.daemon import MedDaemon
@@ -61,12 +90,18 @@ class MedBoxApp(QObject):
         self.daemon.start()
 
     def _show_alert_dialog(self, medication: Medication, scheduled_dt, overdue_delta):
-        dialog = MedAlertDialog(medication, scheduled_dt, overdue_delta)
-        self.active_dialogs.append(dialog)
-        dialog.finished.connect(lambda: self.active_dialogs.remove(dialog) if dialog in self.active_dialogs else None)
-        dialog.show()
-        dialog.raise_()
-        dialog.activateWindow()
+        dbg_log(f"_show_alert_dialog called for {medication.name}")
+        try:
+            dialog = MedAlertDialog(medication, scheduled_dt, overdue_delta)
+            self.active_dialogs.append(dialog)
+            dialog.finished.connect(lambda: self.active_dialogs.remove(dialog) if dialog in self.active_dialogs else None)
+            dialog.show()
+            dialog.raise_()
+            dialog.activateWindow()
+            dbg_log("_show_alert_dialog finished successfully")
+        except Exception as e:
+            import traceback
+            dbg_log(f"CRASH in _show_alert_dialog: {e}\n{traceback.format_exc()}")
 
     def _open_config(self):
         if not self.config_window:

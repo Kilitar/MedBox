@@ -1,0 +1,8 @@
+1. Starting test
+2. Imported PyQt6, version: unknown
+3. Imported QtWidgets
+4. Created QApplication
+5. Created QLabel
+6. Called label.show()
+7. Set up timer, calling app.exec()
+8. Finished app.exec()
