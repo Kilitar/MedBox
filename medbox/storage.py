@@ -54,6 +54,8 @@ def append_log_entry(entry: DoseLog) -> None:
         with open(LOG_FILE, "w", encoding="utf-8") as f:
             json.dump(logs, f, ensure_ascii=False, indent=2)
 
+append_log = append_log_entry
+
 def get_last_log_for_med(medication_id: str) -> Optional[DoseLog]:
     logs = load_log()
     med_logs = [log for log in logs if log.medication_id == medication_id]

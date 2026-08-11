@@ -9,7 +9,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from medbox.storage import load_medications, load_log, append_log
+from medbox.storage import load_medications, load_log, append_log_entry
 from medbox.models import Medication, DoseLog
 
 class DashboardWindow(QMainWindow):
@@ -175,7 +175,7 @@ class DashboardWindow(QMainWindow):
             taken_dt=now.isoformat(),
             delay_minutes=0
         )
-        append_log(log_entry)
+        append_log_entry(log_entry)
         self.refresh_dashboard()
 
     def _create_card(self, med: Medication, stat: Dict):

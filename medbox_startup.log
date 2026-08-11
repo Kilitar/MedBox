@@ -27,3 +27,8 @@ MedBoxApp.__init__ started
 Calling _setup_tray
 Connecting signals
 Calling _start_daemon
+MedBoxApp.__init__ started
+Calling _setup_tray
+Connecting signals
+Calling _start_daemon
+MedBoxApp.__init__ finished
