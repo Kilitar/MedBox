@@ -16,3 +16,43 @@ Traceback (most recent call last):
     self.edit_btn = QPushButton("⚙️ Správa a Editace Léků (Přidat/Změnit)")
                     ^^^^^^^^^^^
 NameError: name 'QPushButton' is not defined
+
+=== 2026-08-11T05:04:13.833525 ===
+Traceback (most recent call last):
+  File "D:\Antigravity Projects\MedBox\run.pyw", line 23, in <module>
+    from medbox.main import MedBoxApp
+  File "D:\Antigravity Projects\MedBox\medbox\main.py", line 18, in <module>
+    from medbox.dashboard import DashboardWindow
+  File "D:\Antigravity Projects\MedBox\medbox\dashboard.py", line 12, in <module>
+    from medbox.storage import load_medications, load_log, append_log
+ImportError: cannot import name 'append_log' from 'medbox.storage' (D:\Antigravity Projects\MedBox\medbox\storage.py)
+
+=== 2026-08-11T05:04:36.213183 ===
+Traceback (most recent call last):
+  File "D:\Antigravity Projects\MedBox\run.pyw", line 23, in <module>
+    from medbox.main import MedBoxApp
+  File "D:\Antigravity Projects\MedBox\medbox\main.py", line 18, in <module>
+    from medbox.dashboard import DashboardWindow
+  File "D:\Antigravity Projects\MedBox\medbox\dashboard.py", line 12, in <module>
+    from medbox.storage import load_medications, load_log, append_log
+ImportError: cannot import name 'append_log' from 'medbox.storage' (D:\Antigravity Projects\MedBox\medbox\storage.py)
+
+=== 2026-08-11T05:04:48.202708 ===
+Traceback (most recent call last):
+  File "D:\Antigravity Projects\MedBox\run.pyw", line 23, in <module>
+    from medbox.main import MedBoxApp
+  File "D:\Antigravity Projects\MedBox\medbox\main.py", line 18, in <module>
+    from medbox.dashboard import DashboardWindow
+  File "D:\Antigravity Projects\MedBox\medbox\dashboard.py", line 12, in <module>
+    from medbox.storage import load_medications, load_log, append_log
+ImportError: cannot import name 'append_log' from 'medbox.storage' (D:\Antigravity Projects\MedBox\medbox\storage.py)
+
+=== 2026-08-11T05:05:23.251253 ===
+Traceback (most recent call last):
+  File "d:\Antigravity Projects\MedBox\run.pyw", line 23, in <module>
+    from medbox.main import MedBoxApp
+  File "d:\Antigravity Projects\MedBox\medbox\main.py", line 18, in <module>
+    from medbox.dashboard import DashboardWindow
+  File "d:\Antigravity Projects\MedBox\medbox\dashboard.py", line 12, in <module>
+    from medbox.storage import load_medications, load_log, append_log
+ImportError: cannot import name 'append_log' from 'medbox.storage' (d:\Antigravity Projects\MedBox\medbox\storage.py)

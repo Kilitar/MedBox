@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict
 
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QLabel, QComboBox, QScrollArea, QProgressBar, QFrame)
+                             QLabel, QComboBox, QScrollArea, QProgressBar, QFrame, QPushButton)
 from PyQt6.QtCore import Qt
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -121,6 +121,40 @@ class DashboardWindow(QMainWindow):
         # Jednoduchý výpočet série
         streak = len(med_logs)
 
+        # Calculate time elapsed since last dose
+        all_med_logs = [l for l in logs if l.medication_id == med.id]
+        all_med_logs.sort(key=lambda x: x.taken_dt, reverse=True)
+        
+        last_log = all_med_logs[0] if all_med_logs else None
+        elapsed_str = "Žádná dávka"
+        optimal_status_str = "zatím neužito"
+        
+        if last_log:
+            try:
+                taken_dt = datetime.fromisoformat(last_log.taken_dt)
+                elapsed_sec = int((now - taken_dt).total_seconds())
+                if elapsed_sec < 0:
+                    elapsed_sec = 0
+                
+                eh = elapsed_sec // 3600
+                em = (elapsed_sec % 3600) // 60
+                elapsed_str = f"{eh}h {em}m"
+                
+                opt_sec = med.interval_hours * 3600
+                diff_sec = opt_sec - elapsed_sec
+                
+                if diff_sec >= 0:
+                    dh = diff_sec // 3600
+                    dm = (diff_sec % 3600) // 60
+                    optimal_status_str = f"do optima ({med.interval_hours}h) zbývá <b>{dh}h {dm}m</b>"
+                else:
+                    over_sec = abs(diff_sec)
+                    oh = over_sec // 3600
+                    om = (over_sec % 3600) // 60
+                    optimal_status_str = f"<font color='#f39c12'>přesáhnuto o <b>{oh}h {om}m</b></font>"
+            except Exception:
+                pass
+
         adherence_pct = min(100, int((taken_count / expected_doses) * 100))
 
         return {
@@ -129,7 +163,9 @@ class DashboardWindow(QMainWindow):
             "taken_count": taken_count,
             "expected_doses": expected_doses,
             "avg_delay_min": int(avg_delay),
-            "streak": streak
+            "streak": streak,
+            "elapsed_str": elapsed_str,
+            "optimal_status_str": optimal_status_str
         }
 
     def _take_now(self, med: Medication):
@@ -167,8 +203,8 @@ class DashboardWindow(QMainWindow):
         layout.addLayout(title_layout)
 
         info_text = f"Dávkování: {med.dosage} | Anchor: {med.anchor_time} | Interval: {med.interval_hours}h<br>" \
-                    f"Adherence: {stat['adherence_pct']}% | Streak: {stat['streak']} dávka/dávek<br>" \
-                    f"Prům. zpoždění: {stat['avg_delay_min']} min"
+                    f"🕒 <b>Od minulé dávky:</b> {stat['elapsed_str']} ({stat['optimal_status_str']})<br>" \
+                    f"Adherence: {stat['adherence_pct']}% | Streak: {stat['streak']} dávka/dávek | Prům. zpoždění: {stat['avg_delay_min']} min"
         layout.addWidget(QLabel(info_text))
 
         pbar = QProgressBar()
